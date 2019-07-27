@@ -25,7 +25,7 @@ function sendForm() {
 //  var activeLine = sh_plan.getRange(7, 1, 1, 20).getValues();
   Logger.log(activeLine);
     
-  var url = createFormUrl(sheet,activeLine);
+  var url = createFormUrl(sheet,activeLine[0]);
   Logger.log(url);
 
   var ss = SpreadsheetApp.openById('1LO4sh9eDBk1rdKJLlc-WDPfybo2e3TXcMcfchecVeqg');
@@ -44,21 +44,10 @@ function sendForm() {
   }
   Logger.log(address);
 
-  var date = new Date(activeLine[0][1]);
-  date = Utilities.formatDate(date,'JST','M/d');
-  var time = new Date(activeLine[0][3]);
-  time = Utilities.formatDate(time,'JST','H:mm');
-  
-  var subject = '【'+ date + ' ' + activeLine[0][2] +'向け】 配車登録連絡';
-  var body = activeLine[0][6] +'様\n\n以下の通り配車完了致しました。\n以下のURLより内容を確認し、運転手および経理担当者への申し送り事項の記載をお願い致します。'
-  body += '\n\n===========================\n'
-  body += '日時： '+ date + ' ' + time;
-  body += '\n引取現場： '　+ activeLine[0][2];
-  body += '\n品物: '+ activeLine[0][4];
-  body += '\n降ろし場所： '+ activeLine[0][5];
-  body += '\nURL： '+ url + ' 【必ず記入してください】';
-  body += '\n===========================\n'
-  body += '\n以上\n\n道央配車担当';
+  var subject = '【'+ activeLine[0][2] +'向け】 配車登録連絡';
+
+  var body = activeLine[0][6] + '様\n\n以下の通り配車完了致しました。\n以下のURLより内容を確認し、運転手および経理担当者への申し送り事項の記載をお願い致します。';
+  body += createBody(activeLine[0],url);
 
   Logger.log(subject);
   Logger.log(body);
@@ -200,23 +189,23 @@ function createFormUrl(sheet, activeLine) {
 //  var sheet = SpreadsheetApp.getActiveSheet();
 //  var activeLine = sheet.getRange(sheet.getActiveCell().getRowIndex(), 1, 1, sheet.getLastColumn()).getValues();
   
-  var index = activeLine[0][0];
-  var genba = activeLine[0][2];
-  var date = new Date(activeLine[0][1]);
+  var index = activeLine[0];
+  var genba = activeLine[2];
+  var date = new Date(activeLine[1]);
   date = Utilities.formatDate(date,'JST','M/d');
-  var time = new Date(activeLine[0][3]);
+  var time = new Date(activeLine[3]);
   time = Utilities.formatDate(time,'JST','H:mm');
-  var commodity = activeLine[0][4];
-  var discharge = activeLine[0][5];
-  var truckNumber = activeLine[0][7];
-  var contractor = activeLine[0][10];
-  var discharger = activeLine[0][12];
-  var collector = activeLine[0][14];
-  var manifesto = activeLine[0][15];
-  var draft = activeLine[0][16];
-  var code = activeLine[0][17];
-  var addInfoDri = activeLine[0][18];
-  var addInfoAcc = activeLine[0][19];
+  var commodity = activeLine[4];
+  var discharge = activeLine[5];
+  var truckNumber = activeLine[7];
+  var contractor = activeLine[10];
+  var discharger = activeLine[12];
+  var collector = activeLine[14];
+  var manifesto = activeLine[15];
+  var draft = activeLine[16];
+  var code = activeLine[17];
+  var addInfoDri = activeLine[18];
+  var addInfoAcc = activeLine[19];
   
   var googleFormUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSdxnlp_VDqy3oEFmqvHZk_vuwDjvBWyXdsRsQwomA4ankWOng/viewform?usp=pp_url';
 
@@ -360,4 +349,23 @@ function shortenUrl(longUrl) {
 　 var content = response.getContentText("UTF-8");
 
 　 return JSON.parse(content).link;
+}
+
+function createBody(data,url) {
+  var date = new Date(data[1]);
+  date = Utilities.formatDate(date,'JST','M/d');
+  var time = new Date(data[3]);
+  time = Utilities.formatDate(time,'JST','H:mm');
+  
+  var body = '';
+  body += '\n\n===================\n'
+  body += '日時： '+ date + ' ' + time;
+  body += '\n引取現場： '　+ data[2];
+  body += '\n品物: '+ data[4];
+  body += '\n降ろし場所： '+ data[5];
+  body += '\nURL： '+ url + ' 【必ず記入してください】';
+  body += '\n=====================\n'
+  body += '\n以上\n\n道央配車担当';
+  
+  return body;
 }
